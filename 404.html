@@ -80,11 +80,11 @@
           <option value="dracula">dracula</option>
           <option value="far">far</option>
           <option value="foundation">foundation</option>
-          <option value="github" selected>github</option>
+          <option value="github">github</option>
           <option value="github-gist">github-gist</option>
           <option value="gml">gml</option>
           <option value="googlecode">googlecode</option>
-          <option value="gradient-dark">gradient-dark</option>
+          <option value="gradient-dark" selected>gradient-dark</option>
           <option value="grayscale">grayscale</option>
           <option value="gruvbox-dark">gruvbox-dark</option>
           <option value="gruvbox-light">gruvbox-light</option>
@@ -133,11 +133,11 @@
         </div>
       </div>
       <div class="custom-control custom-checkbox custom-control-inline">
-        <input type="checkbox" class="custom-control-input" name="showBorder" id="showBorder" checked>
+        <input type="checkbox" class="custom-control-input" name="showBorder" id="showBorder">
         <label class="custom-control-label" for="showBorder">Border</label>
       </div>
       <div class="custom-control custom-checkbox custom-control-inline">
-        <input type="checkbox" class="custom-control-input" name="showLineNumbers" id="showLineNumbers" checked>
+        <input type="checkbox" class="custom-control-input" name="showLineNumbers" id="showLineNumbers">
         <label class="custom-control-label" for="showLineNumbers">Line numbers</label>
       </div>
       <div class="custom-control custom-checkbox custom-control-inline">
@@ -285,8 +285,7 @@
         $("#target").attr("placeholder", "https://github.com/user/repository/blob/branch/src/hello.cpp#L2-L6");
       } else {
         // 404 triggered. Fill in target and simulate clicking
-        $("#target").val("https://github.com" + window.location.pathname + window.location.search + window.location.hash);
-        $("#goForm").submit();
+        $("#target").attr("value", "https://github.com/cdm/embed-like-gist/blob/master/ex.go#create_wallet");
       }
 
     });

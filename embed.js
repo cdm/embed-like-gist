@@ -10,6 +10,7 @@ function embed() {
   const showLineNumbers = params.get("showLineNumbers") === "on";
   const showFileMeta = params.get("showFileMeta") === "on";
   const lineSplit = target.hash.split("-");
+  const snippetText = target.hash !== "" && lineSplit[0] !== "#L" && lineSplit[0].replace("#", "") || "";
   const startLine = target.hash !== "" && lineSplit[0].replace("#L", "") || -1;
   const endLine = target.hash !== "" && lineSplit.length > 1 && lineSplit[1].replace("L", "") || -1;
   const tabSize = target.searchParams.get("ts") || 8;
@@ -95,12 +96,12 @@ function embed() {
 
   Promise.all(showLineNumbers ? [fetchFile, loadHLJS, loadHLJSNum] : [fetchFile, loadHLJS]).then((result) => {
     const targetDiv = document.getElementById(containerId);
-    embedCodeToTarget(targetDiv, result[0], showBorder, showLineNumbers, showFileMeta, isDarkStyle, target.href, rawFileURL, fileExtension, startLine, endLine, tabSize);
+    embedCodeToTarget(targetDiv, result[0], showBorder, showLineNumbers, showFileMeta, isDarkStyle, target.href, rawFileURL, fileExtension, snippetText, startLine, endLine, tabSize);
   }).catch((error) => {
     const errorMsg = `Failed to process ${rawFileURL}
 ${error}`;
     const targetDiv = document.getElementById(containerId);
-    embedCodeToTarget(targetDiv, errorMsg, showBorder, showLineNumbers, showFileMeta, isDarkStyle, target.href, rawFileURL, 'plaintext', -1, -1, tabSize);
+    embedCodeToTarget(targetDiv, errorMsg, showBorder, showLineNumbers, showFileMeta, isDarkStyle, target.href, rawFileURL, 'plaintext', '', -1, -1, tabSize);
   });
 }
 
@@ -114,7 +115,7 @@ function loadScript(src) {
   });
 }
 
-function embedCodeToTarget(targetDiv, codeText, showBorder, showLineNumbers, showFileMeta, isDarkStyle, fileURL, rawFileURL, lang, startLine, endLine, tabSize) {
+function embedCodeToTarget(targetDiv, codeText, showBorder, showLineNumbers, showFileMeta, isDarkStyle, fileURL, rawFileURL, lang, snippetText, startLine, endLine, tabSize) {
   const fileContainer = document.createElement("div");
   fileContainer.style.margin = "1em 0";
 
@@ -133,9 +134,40 @@ function embedCodeToTarget(targetDiv, codeText, showBorder, showLineNumbers, sho
       code.style.border = "1px solid #555";
     }
   }
+
+  codeText = codeText.replace(/\t/g, '  ');
+
+  var codeTextSplit = [];
   code.classList.add(lang);
-  if (startLine > 0) {
+  if (snippetText != "") {
+    // snippets take preference over #Lxx-yy declarations
+    const startSnippet = "__" + snippetText + ":";
+    const endSnippet = ":" + snippetText + "__";
+    var startSnippetLine = 0;
+    var endSnippetLine = 0;
     codeTextSplit = codeText.split("\n");
+    for (var i = 0; i < codeTextSplit.length; i++) {
+      if (startSnippetLine == 0 
+        && codeTextSplit[i].indexOf(startSnippet) !== -1) {
+          startSnippetLine = i+2; // Start at line after identifier comment
+      }
+      if (startSnippetLine > 0 && endSnippetLine == 0
+        && codeTextSplit[i].indexOf(endSnippet) !== -1) {
+          endSnippetLine = i; // End at line before identifier comment
+      }
+    }
+    // only if we find both identifiers for the snippet do we 
+    // map them onto the file lines for use directly in #Lxx-yy
+    if (startSnippetLine > 0 && endSnippetLine > 0) {
+      startLine = startSnippetLine;
+      endLine = endSnippetLine;
+      fileURL = fileURL.replace(snippetText, "L" + startLine + "-L" + endLine);
+    }
+  } 
+  if (startLine > 0) {
+    if (codeTextSplit.length == 0) {
+      codeTextSplit = codeText.split("\n");
+    }
     if (endLine > 0) {
       code.textContent = codeTextSplit.slice(startLine - 1, endLine).join("\n");
     } else {
@@ -163,7 +195,6 @@ function embedCodeToTarget(targetDiv, codeText, showBorder, showLineNumbers, sho
 
   if (showFileMeta) {
     const meta = document.createElement("div");
-    const rawFileURLSplit = rawFileURL.split("/");
     meta.innerHTML = `<a target="_blank" href="${fileURL}" style="float:right">View on GitHub</a>
 &nbsp;`;
     meta.classList.add("file-meta");

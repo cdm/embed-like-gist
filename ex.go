@@ -7,14 +7,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
-	types "code.vegaprotocol.io/vega/proto"
-	"github.com/dgraph-io/badger/v2"
-	"github.com/golang/protobuf/proto"
-
-	"github.com/vegaprotocol/vdb/util"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func TradesToCSV(
@@ -37,6 +29,7 @@ func TradesToCSV(
 
 	file, err := os.Create(getTradesCsvFile(config.chainId))
 	defer file.Close()
+
 
 	// :create_wallet__
 
