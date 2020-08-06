@@ -18,7 +18,7 @@ func TradesToCSV(
 	log.Info("Processing trades STARTED")
 
 	// __create_wallet:
-
+	// Creating a wallet via badger default options, switch to open and db close.
 	opts := badger.DefaultOptions(dbPath)
 	opts.ReadOnly = true
 	db, err := badger.Open(opts)
@@ -29,8 +29,6 @@ func TradesToCSV(
 
 	file, err := os.Create(getTradesCsvFile(config.chainId))
 	defer file.Close()
-
-
 	// :create_wallet__
 
 	w := csv.NewWriter(file)
