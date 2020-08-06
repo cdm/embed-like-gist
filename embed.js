@@ -46,7 +46,7 @@ function embed() {
 
 .file-meta-dark {
   color: #f7f7f7;
-  background-color: #586069;
+  background-color: #111111;
 }
 
 .file-meta a {
@@ -164,7 +164,8 @@ function embedCodeToTarget(targetDiv, codeText, showBorder, showLineNumbers, sho
   if (showFileMeta) {
     const meta = document.createElement("div");
     const rawFileURLSplit = rawFileURL.split("/");
-    meta.innerHTML = `<a target="_blank" href="${fileURL}" style="float:right">View on GitHub</a>`;
+    meta.innerHTML = `<a target="_blank" href="${fileURL}" style="float:right">View on GitHub</a>
+&nbsp;`;
     meta.classList.add("file-meta");
     if (!isDarkStyle) {
       meta.classList.add("file-meta-light");
